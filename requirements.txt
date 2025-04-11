@@ -1,0 +1,34 @@
+# API frameworks
+fastapi>=0.95.0
+uvicorn>=0.22.0
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Web UI
+streamlit>=1.27.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+seaborn>=0.13.0
+
+# HTTP requests
+requests>=2.30.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# NLP and ML
+langchain>=0.0.208
+langchain-community>=0.0.1
+# openai>=1.0.0  # Removing OpenAI
+google-generativeai>=0.3.0  # Adding Gemini API
+spacy>=3.6.0
+nltk>=3.8.0
+
+# Date and time handling
+python-dateutil>=2.8.0
+
+# Utilities
+python-dotenv>=1.0.0
+pillow>=10.0.0 
