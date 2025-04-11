@@ -170,6 +170,10 @@ class ScraperManager:
             article_copy = article.copy()
             if isinstance(article_copy.get("date"), datetime.datetime):
                 article_copy["date"] = article_copy["date"].isoformat()
+                
+            # Add source_file to each article for traceability
+            article_copy["source_file"] = filename
+                
             articles_json.append(article_copy)
         
         filepath = os.path.join(self.output_dir, filename)

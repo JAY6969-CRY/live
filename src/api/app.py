@@ -55,6 +55,7 @@ class QuestionResponse(BaseModel):
     question: str
     answer: str
     sources: List[Dict]
+    source_files: Optional[List[str]] = []
     is_simulated: Optional[bool] = False
     
     class Config:
@@ -69,6 +70,7 @@ class QuestionResponse(BaseModel):
                         "date": "2023-10-15"
                     }
                 ],
+                "source_files": ["news_2023-10-15.json", "market_data.csv"],
                 "is_simulated": False
             }
         }
@@ -208,30 +210,16 @@ async def answer_question(
     """Answer a financial question based on news and financial data."""
     try:
         question = request.question
-        answer = qa_system.answer_question(question)
+        answer, source_files, relevant_sources = qa_system.answer_question(question)
         
-        # Get sources from relevant articles
-        context = qa_system._get_relevant_context(question)
-        entity_matches = qa_system._extract_entities_from_question(question)
-        
-        # Find related articles
-        relevant_articles = []
-        
-        # Simplified source extraction for response
-        sources = []
-        for article in qa_system.news_articles[:5]:  # Just use a few as example
-            if any(company in article.get("title", "") 
-                  for company in entity_matches.get("companies", [])):
-                sources.append({
-                    "title": article.get("title", ""),
-                    "source": article.get("source", ""),
-                    "date": article.get("date", "")
-                })
+        # Get sources from the relevant sources
+        sources = relevant_sources
         
         return {
             "question": question,
             "answer": answer,
             "sources": sources,
+            "source_files": source_files,
             "is_simulated": qa_system.llm is None  # Flag to indicate if response is simulated
         }
     except Exception as e:

@@ -97,57 +97,15 @@ def analyze_stock():
         specific_question = f"{question} for {company_name} ({symbol})"
     
     # Get answer using the QA system
-    answer = qa_system.answer_question(specific_question)
-    
-    # Get news specifically about this stock
-    company_news = []
-    
-    # Scrape headlines with a broader scope
-    headlines = scraper_manager.scrape_all_headlines(limit=20)
-    
-    # Process each headline to find relevant news
-    for headline in headlines:
-        # Process the headline to extract entities
-        processed = news_processor.process_headline(headline)
-        
-        # Check for company name or symbol in headline or entities
-        if (company_name in headline.get("title", "") or 
-            symbol.upper() in headline.get("title", "") or
-            company_name in processed.get("entities", {}).get("companies", [])):
-            
-            # Score based on relevance
-            score = 0
-            if company_name in headline.get("title", ""):
-                score += 5
-            if symbol.upper() in headline.get("title", ""):
-                score += 3
-            for keyword in ["results", "earnings", "profit", "loss", "announces", "acquisition"]:
-                if keyword in headline.get("title", "").lower():
-                    score += 1
-            
-            # Add score to the news item
-            headline["relevance_score"] = score
-            company_news.append(headline)
-    
-    # Sort by relevance score
-    company_news.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
-    
-    # Clean up the sources for the response
-    sources = []
-    for article in company_news[:5]:
-        sources.append({
-            "title": article.get("title", ""),
-            "source": article.get("source", ""),
-            "date": article.get("date", ""),
-            "relevance_score": article.get("relevance_score", 0)
-        })
+    answer, source_files, relevant_sources = qa_system.answer_question(specific_question)
     
     return jsonify({
         "symbol": symbol,
         "company_name": company_name,
         "question": specific_question,
         "answer": answer,
-        "sources": sources,
+        "sources": relevant_sources,
+        "source_files": source_files,
         "is_simulated": qa_system.llm is None  # Flag to indicate if response is simulated
     })
 
