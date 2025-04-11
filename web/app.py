@@ -439,8 +439,8 @@ def analyze_stock(symbol, question=None):
         stock_responses = {
             "TCS": {
                 "analysis": "TCS has demonstrated consistent performance in recent quarters, maintaining its position as a leader in the IT services sector. The company's focus on digital transformation initiatives and cloud services has been well-received by clients, contributing to a healthy order book. Recent deals, particularly in the banking and financial services vertical, indicate continued business momentum. Market sentiment around TCS remains positive due to its strong execution capabilities and resilient business model.",
-                "sources": [
-                    {
+            "sources": [
+                {
                         "title": "TCS reports 8% growth in Q1 revenue",
                         "source": "Economic Times",
                         "date": datetime.datetime.now().isoformat(),
@@ -854,21 +854,16 @@ with tab1:
     with col2:
         st.markdown("**Market & Sector**")
         market_questions = [
-            "What happened to Nifty this week?",
+        "What happened to Nifty this week?",
             "Why is the Banking sector down?",
             "Any news affecting IT stocks?",
             "What's driving Sensex today?"
-        ]
-        
+    ]
         for q in market_questions:
             if st.button(q, key=f"market_q_{q}"):
                 st.session_state.question = q
                 st.rerun()
-
-# Tab 2: Stock Lookup
-with tab2:
-    st.header("Stock Symbol Lookup & Analysis")
-    
+        st.header("Stock Symbol Lookup & Analysis")
     # More intuitive description
     st.markdown("Enter a stock symbol to get detailed analysis and relevant news specifically about that company.")
     
@@ -898,12 +893,10 @@ with tab2:
         with sector_tabs[i]:
             cols = st.columns(len(stocks))
             for j, symbol in enumerate(stocks):
-                with cols[j]:
-                    if st.button(symbol, key=f"example_symbol_{symbol}"):
-                        st.session_state.stock_symbol = symbol
-                        st.rerun()
-    
-    # Custom question option with better description
+                    with cols[j]:
+                            if st.button(symbol, key=f\"example_symbol_{symbol}\"): # type: ignore
+                                    st.session_state.stock_symbol = symbol
+                                    st.rerun()
     custom_question = st.text_input(
         "Ask a specific question about this stock (optional):", 
         placeholder="E.g., Why is this stock price changing? What are the recent developments?"
@@ -922,23 +915,23 @@ with tab2:
                 with col1:
                     with st.spinner("Loading stock news..."):
                         news_data = get_stock_news(stock_symbol)
-                        
-                        if "error" in news_data:
-                            st.error(news_data["error"])
-                        else:
+                    
+                    if "error" in news_data:
+                        st.error(news_data["error"])
+                    else:
                             # Display news with better formatting
-                            st.markdown(f"### Recent News for {news_data.get('company_name', stock_symbol)}")
+                        st.markdown(f"### Recent News for {news_data.get('company_name', stock_symbol)}")
+                        
+                        if 'news' in news_data and news_data['news']:
+                            # Create tabs for different news sources if available
+                            news_sources = list(set([article.get('source', 'Unknown') for article in news_data['news']]))
                             
-                            if 'news' in news_data and news_data['news']:
-                                # Create tabs for different news sources if available
-                                news_sources = list(set([article.get('source', 'Unknown') for article in news_data['news']]))
+                            if len(news_sources) > 1:
+                                news_tabs = st.tabs(["All"] + news_sources)
                                 
-                                if len(news_sources) > 1:
-                                    news_tabs = st.tabs(["All"] + news_sources)
-                                    
-                                    # All news tab
-                                    with news_tabs[0]:
-                                        for article in news_data['news']:
+                                # All news tab
+                                with news_tabs[0]:
+                                    for article in news_data['news']:
                                             with st.container():
                                                 st.subheader(article.get('title', ''))
                                                 st.caption(f"{article.get('source', '')} - {format_date(article.get('date', ''))}")
@@ -947,12 +940,12 @@ with tab2:
                                                 if content:
                                                     st.markdown(content[:300] + ('...' if len(content) > 300 else ''))
                                                 st.divider()
-                                    
-                                    # Source-specific tabs
-                                    for i, source in enumerate(news_sources):
-                                        with news_tabs[i+1]:
-                                            source_news = [article for article in news_data['news'] if article.get('source') == source]
-                                            for article in source_news:
+                                
+                                # Source-specific tabs
+                                for i, source in enumerate(news_sources):
+                                    with news_tabs[i+1]:
+                                        source_news = [article for article in news_data['news'] if article.get('source') == source]
+                                        for article in source_news:
                                                 with st.container():
                                                     st.subheader(article.get('title', ''))
                                                     st.caption(f"{format_date(article.get('date', ''))}")
@@ -961,9 +954,9 @@ with tab2:
                                                     if content:
                                                         st.markdown(content[:300] + ('...' if len(content) > 300 else ''))
                                                     st.divider()
-                                else:
+                            else:
                                     # Just show all news with better formatting
-                                    for article in news_data['news']:
+                                for article in news_data['news']:
                                         with st.container():
                                             st.subheader(article.get('title', ''))
                                             st.caption(f"{article.get('source', '')} - {format_date(article.get('date', ''))}")
@@ -972,27 +965,27 @@ with tab2:
                                             if content:
                                                 st.markdown(content[:300] + ('...' if len(content) > 300 else ''))
                                             st.divider()
-                            else:
-                                st.info("No recent news found for this stock symbol")
+                        else:
+                            st.info("No recent news found for this stock symbol")
             
-                with col2:
-                    with st.spinner("Loading stock data..."):
+            with col2:
+                with st.spinner("Loading stock data..."):
                         # Get basic stock information with improved display
-                        stocks = search_stocks(stock_symbol)
-                        
-                        if stocks:
-                            stock = stocks[0]
-                            # Use a card-like display
-                            with st.container():
-                                st.markdown(f"### {stock.get('name', '')}")
-                                
-                                # Display basic info in a more organized way
-                                col1, col2 = st.columns(2)
-                                with col1:
-                                    st.markdown("**Symbol**")
-                                    st.markdown(stock.get('symbol', ''))
-                                    st.markdown("**Sector**")
-                                    st.markdown(stock.get('sector', 'Unknown'))
+                    stocks = search_stocks(stock_symbol)
+                    
+                    if stocks:
+                        stock = stocks[0]
+                        # Use a card-like display
+                        with st.container():
+                            st.markdown(f"### {stock.get('name', '')}")
+                            
+                            # Display basic info in a more organized way
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.markdown("**Symbol**")
+                                st.markdown(stock.get('symbol', ''))
+                                st.markdown("**Sector**")
+                                st.markdown(stock.get('sector', 'Unknown'))
                                 
                                 with col2:
                                     st.markdown("**ISIN**")
@@ -1002,20 +995,20 @@ with tab2:
                                     st.markdown("NSE/BSE")
                                 
                             # Display price chart with better title
-                            st.markdown("### Price Trend")
-                            
+                        st.markdown("### Price Trend")
+                        
                             # Create a simple placeholder chart with better styling
-                            dates = pd.date_range(start='2023-01-01', periods=30, freq='D')
-                            prices = np.random.normal(loc=0.1, scale=0.02, size=30).cumsum() + 100
-                            
-                            df = pd.DataFrame({
-                                'Date': dates,
-                                'Price': prices
-                            })
-                            
-                            st.line_chart(df.set_index('Date'))
-                        else:
-                            st.warning("Stock information not found")
+                        dates = pd.date_range(start='2023-01-01', periods=30, freq='D')
+                        prices = np.random.normal(loc=0.1, scale=0.02, size=30).cumsum() + 100
+                        
+                        df = pd.DataFrame({
+                            'Date': dates,
+                            'Price': prices
+                        })
+                        
+                        st.line_chart(df.set_index('Date'))
+                    else:
+                        st.warning("Stock information not found")
             
             # Improved stock analysis section
             st.markdown("### Stock Analysis")
@@ -1039,7 +1032,6 @@ with tab2:
                     # Create tabs for sources
                     if analysis.get("sources") or analysis.get("source_files"):
                         source_tabs = st.tabs(["News Sources", "Data Sources"])
-                        
                         with source_tabs[0]:
                             if analysis.get("sources"):
                                 for source in analysis["sources"]:
@@ -1058,20 +1050,16 @@ with tab2:
                                             # Show stars based on relevance
                                             stars = "⭐" * min(5, max(1, int(relevance / 5)))
                                             st.caption(f"Relevance: {stars}")
-                                        
-                                        st.divider()
-                            else:
-                                st.info("No relevant news sources found.")
-                        
-                        with source_tabs[1]:
-                            if analysis.get("source_files") and len(analysis.get("source_files")) > 0:
-                                for source_file in analysis["source_files"]:
-                                    st.markdown(f"- `{source_file}`")
-                            else:
-                                st.info("No data source files available.")
-                    
-                    # Show if this is a simulated response with more informative message
-                    if analysis.get("is_simulated", False):
+                                            st.divider()
+                                        else:
+                                            st.info("No relevant news sources found.")
+                                            
+                                            with source_tabs[1]:
+                                                if analysis.get("source_files") and len(analysis["source_files"]) > 0:
+                                                    for source_file in analysis["source_files"]:
+                                                        st.markdown(f"- `{source_file}`")
+                                                else:
+                                                    st.info("No data source files available.")
                         st.info("Note: This analysis uses pattern matching and simulated data. For higher quality analysis, connect to the API backend.")
         else:
             st.warning("Please enter a stock symbol")
@@ -1222,7 +1210,5 @@ with tab5:
         else:
             st.warning("Please enter a search term")
 
-
-# Footer
 st.markdown("---")
-st.markdown("© 2023 NewsSense | Built for MyFi Hackathon Challenge") 
+st.markdown("© 2023 NewsSense | Built for MyFi Hackathon Challenge | All rights reserved.", unsafe_allow_html=True)
